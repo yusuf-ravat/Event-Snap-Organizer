@@ -1,0 +1,214 @@
+.event-list-container {
+  margin-top: var(--spacing-xl);
+  padding: 0 var(--spacing-md);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.event-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.event-list-title {
+  color: var(--text-primary);
+  margin-bottom: 0;
+  font-size: 2rem;
+}
+
+.create-event-link {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.create-event-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.no-events-message {
+  background-color: var(--surface-color);
+  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-md);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm);
+}
+
+.event-card {
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.event-card-content {
+  background-color: var(--card-background-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.event-card-content:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.event-name {
+  color: white;
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.event-date {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-date i {
+  font-size: 1.1rem;
+}
+
+.event-description {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: var(--spacing-lg);
+  flex-grow: 1;
+  line-height: 1.6;
+}
+
+.view-details-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  width: 100%;
+}
+
+.view-details-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.loading-message {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-xl) auto;
+  max-width: 600px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .event-list-container {
+    padding: 52px var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+  }
+
+  .event-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .event-list-title {
+    font-size: 1.75rem;
+  }
+
+  .create-event-link {
+    justify-content: center;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .event-card-content {
+    padding: var(--spacing-md);
+  }
+
+  .event-name {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-list-title {
+    font-size: 1.5rem;
+  }
+
+  .create-event-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .event-card-content {
+    padding: var(--spacing-sm);
+  }
+
+  .event-name {
+    font-size: 1.1rem;
+  }
+
+  .event-description {
+    font-size: 0.95rem;
+  }
+
+  .view-details-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+} 

@@ -1,70 +1,135 @@
-# Getting Started with Create React App
+# EventSnap Organizer 📸
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![React](https://img.shields.io/badge/React-18.2.0-blue)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-Latest-green)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green)](https://www.mongodb.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Latest-orange)](https://firebase.google.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Available Scripts
+EventSnap Organizer is a powerful web application designed to revolutionize event photo management. It combines facial recognition technology with secure sharing capabilities to create an intuitive platform for organizing and sharing event memories.
 
-In the project directory, you can run:
+## 🌟 Key Features
 
-### `npm start`
+- **Smart Photo Organization**: Automatically organize photos by events and people
+- **Facial Recognition**: AI-powered face detection and tagging
+- **Secure Sharing**: Share albums with specific people or groups
+- **PDF Generation**: Create beautiful event highlight PDFs
+- **Real-time Collaboration**: Multiple users can contribute to the same event
+- **Cloud Storage**: Secure cloud storage with Cloudinary integration
+- **Authentication**: Secure user authentication with Firebase
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Technology Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Frontend
+- React.js 18.2.0
+- Material-UI & Bootstrap
+- Firebase Authentication
+- face-api.js for facial recognition
+- jsPDF for PDF generation
+- Cloudinary for image management
 
-### `npm test`
+### Backend
+- Node.js with Express
+- MongoDB for event data
+- Firebase Admin SDK
+- Cloudinary API
+- JWT Authentication
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Getting Started
 
-### `npm run build`
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB
+- Firebase account
+- Cloudinary account
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Clone the repository:
+```bash
+git clone https://github.com/yusuf-ravat/Event-Snap-Organizer.git
+cd Event-Snap-Organizer
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Install dependencies:
+```bash
+# Install frontend dependencies
+npm install
 
-### `npm run eject`
+# Install backend dependencies
+cd backend
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. Environment Setup:
+   - Copy `.env.example` to `.env` in both root and backend directories
+   - Update the environment variables with your credentials
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. Start the application:
+```bash
+# Development mode
+npm run dev
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Production mode
+npm run build
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📱 Features in Detail
 
-## Learn More
+### Event Management
+- Create and manage multiple events
+- Upload photos in bulk
+- Organize photos by categories
+- Add event details and descriptions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Photo Organization
+- Automatic facial recognition
+- Manual tagging options
+- Album creation and management
+- Photo filtering and search
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Sharing Capabilities
+- Generate shareable links
+- Set access permissions
+- Real-time updates
+- Download options
 
-### Code Splitting
+### Security Features
+- Firebase Authentication
+- Secure file storage
+- Role-based access control
+- Data encryption
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🤝 Contributing
 
-### Analyzing the Bundle Size
+We welcome contributions! Please follow these steps:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Making a Progressive Web App
+## 📄 License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Advanced Configuration
+## 👥 Authors
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **Yusuf Ravat** - *Initial work* - [GitHub Profile](https://github.com/yusuf-ravat)
 
-### Deployment
+## 🙏 Acknowledgments
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Firebase for authentication and storage
+- Cloudinary for image management
+- face-api.js for facial recognition
+- MongoDB for database management
 
-### `npm run build` fails to minify
+## 📞 Support
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For support, please open an issue in the GitHub repository or contact the maintainers.
+
+---
+
+⭐ Star this repository if you find it useful!

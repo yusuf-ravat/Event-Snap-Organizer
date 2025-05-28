@@ -1,0 +1,133 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 600px;
+  padding: var(--spacing-xl);
+  text-align: center;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.register-card h2 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1 1 250px;
+  margin-bottom: 0;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-secondary);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.password-hint {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: var(--text-secondary);
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.register-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: var(--spacing-md);
+}
+
+.register-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.register-button:disabled {
+  background-color: var(--secondary-color);
+  cursor: not-allowed;
+}
+
+.login-link {
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+}
+
+.login-text {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-text:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-row .form-group {
+    flex-basis: auto;
+    margin-bottom: var(--spacing-md);
+  }
+} 
