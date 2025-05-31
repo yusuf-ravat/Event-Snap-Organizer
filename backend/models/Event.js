@@ -30,6 +30,10 @@ const eventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Photo'
   }],
+  folders: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Folder'
+  }],
   sharedUsers: [{
     type: String
   }],

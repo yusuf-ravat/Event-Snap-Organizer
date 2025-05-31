@@ -5,6 +5,7 @@ const cloudinary = require('cloudinary').v2;
 const Photo = require('../models/Photo');
 const Event = require('../models/Event');
 const admin = require('firebase-admin');
+const Folder = require('../models/Folder');
 
 // Configure multer for memory storage
 const upload = multer({ storage: multer.memoryStorage() });
@@ -54,7 +55,7 @@ router.post('/upload', upload.single('photo'), async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const { eventId } = req.body;
+    const { eventId, folderId } = req.body;
     let userId = null;
     let shareCode = null;
 
@@ -78,18 +79,27 @@ router.post('/upload', upload.single('photo'), async (req, res) => {
       return res.status(403).json({ message: error });
     }
 
+    // If folderId is provided, verify it belongs to the event
+    if (folderId) {
+      const folder = await Folder.findById(folderId);
+      if (!folder || folder.event.toString() !== eventId) {
+        return res.status(400).json({ message: 'Invalid folder' });
+      }
+    }
+
     // Upload to Cloudinary
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
     
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: `events/${eventId}`,
+      folder: `events/${eventId}${folderId ? `/folders/${folderId}` : ''}`,
       resource_type: 'auto'
     });
 
     // Create photo document
     const photo = new Photo({
       event: eventId,
+      folder: folderId,
       cloudinaryId: result.public_id,
       url: result.secure_url,
       uploadedBy: userId || 'anonymous', // Store anonymous for share code uploads
@@ -101,6 +111,13 @@ router.post('/upload', upload.single('photo'), async (req, res) => {
     // Add photo to event
     event.photos.push(savedPhoto._id);
     await event.save();
+
+    // If folderId is provided, add photo to folder
+    if (folderId) {
+      const folder = await Folder.findById(folderId);
+      folder.photos.push(savedPhoto._id);
+      await folder.save();
+    }
 
     res.status(201).json(savedPhoto);
   } catch (error) {

@@ -31,10 +31,11 @@ function Footer() {
         <div className="footer-section">
           <h4>Connect With Us</h4>
           <div className="social-links">
+            <a href="https://github.com/yusuf-ravat" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">X</a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="https://gmail.com" target="_blank" rel="noopener noreferrer">Email</a>
+            <a href="ravatsup@gmail.com" target="_blank" rel="noopener noreferrer">Email</a>
           </div>
         </div>
       </div>

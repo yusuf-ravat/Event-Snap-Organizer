@@ -18,6 +18,9 @@ function EventDetails() {
   const [shareInfo, setShareInfo] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [statistics, setStatistics] = useState(null);
+  const [selectedFolder, setSelectedFolder] = useState('');
+  const [folders, setFolders] = useState([]);
+  const [newFolderName, setNewFolderName] = useState('');
 
   const fetchEventDetails = useCallback(async () => {
     try {
@@ -72,6 +75,15 @@ function EventDetails() {
     }
   }, [id]);
 
+  const fetchFolders = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${id}/folders`);
+      setFolders(response.data);
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchEventAndPhotos();
   }, [fetchEventAndPhotos]);
@@ -82,14 +94,42 @@ function EventDetails() {
     }
   }, [event, fetchStatistics]);
 
+  useEffect(() => {
+    fetchFolders();
+  }, [fetchFolders]);
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files);
   };
 
+  const handleFolderChange = (e) => {
+    setSelectedFolder(e.target.value);
+  };
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+
+    try {
+      const response = await axiosInstance.post(`/events/${id}/folders`, {
+        name: newFolderName.trim()
+      });
+      setFolders([...folders, response.data]);
+      setNewFolderName('');
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      setError('Failed to create folder. Please try again.');
+    }
+  };
+
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
       setError('Please select files to upload');
+      return;
+    }
+
+    if (!selectedFolder) {
+      alert('Please select a folder to upload to');
       return;
     }
 
@@ -104,6 +144,7 @@ function EventDetails() {
         const formData = new FormData();
         formData.append('photo', file);
         formData.append('eventId', id);
+        formData.append('folderId', selectedFolder);
 
         // Update progress for this file
         newUploadProgress[file.name] = 0;
@@ -380,6 +421,41 @@ function EventDetails() {
                 <p className="upload-subtitle">Share your memories from this event</p>
               </div>
               
+              <div className="folder-section">
+                <div className="d-flex gap-3 align-items-center">
+                  <select
+                    className="form-select"
+                    value={selectedFolder}
+                    onChange={handleFolderChange}
+                    required
+                  >
+                    <option value="">Select a folder</option>
+                    {folders.map((folder) => (
+                      <option key={folder._id} value={folder._id}>
+                        {folder.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="folder-creation-form">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="New folder name"
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                    />
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={handleCreateFolder}
+                      disabled={!newFolderName.trim()}
+                    >
+                      <i className="bi bi-folder-plus"></i>
+                      Create Folder
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div className="upload-area" onClick={() => document.getElementById('photoUpload').click()}>
                 <input
                   id="photoUpload"
@@ -486,49 +562,188 @@ function EventDetails() {
             <div className="gallery-card-body">
               <div className="gallery-header">
                 <h4 className="mb-0">Photo Gallery</h4>
-                <span>
-                  {photos.length} Photos
-                </span>
+                <div className="d-flex align-items-center gap-3">
+                  <div className="folder-section">
+                    <select 
+                      className="form-select" 
+                      value={selectedFolder} 
+                      onChange={handleFolderChange}
+                    >
+                      <option value="">All Photos</option>
+                      {folders.map(folder => (
+                        <option key={folder._id} value={folder._id}>
+                          {folder.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* {event?.creator === auth.currentUser?.uid && (
+                    <div className="d-flex gap-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="New folder name"
+                        value={newFolderName}
+                        onChange={(e) => setNewFolderName(e.target.value)}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleCreateFolder}
+                      >
+                        <i className="bi bi-folder-plus"></i>
+                        Create Folder
+                      </button>
+                    </div>
+                  )} */}
+                </div>
               </div>
+
               {photos && photos.length > 0 ? (
                 <div className="gallery-scroll-container">
-                  <div className="photo-grid">
-                    {photos.map((photo) => (
-                      <div key={photo._id} className="photo-card">
-                        <div className="photo-image-container">
-                          <img
-                            src={photo.url}
-                            className="photo-image"
-                            alt={`From ${event.name}`}
-                          />
-                          <div className="photo-date">
-                            {new Date(photo.createdAt).toLocaleDateString()}
+                  {selectedFolder ? (
+                    // Show photos in selected folder
+                    <div className="photo-grid">
+                      {photos
+                        .filter(photo => photo.folder === selectedFolder)
+                        .map((photo) => (
+                          <div key={photo._id} className="photo-card">
+                            <div className="photo-image-container">
+                              <img
+                                src={photo.url}
+                                className="photo-image"
+                                alt={`From ${event.name}`}
+                                onError={(e) => {
+                                  e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                }}
+                              />
+                              <div className="photo-date">
+                                {new Date(photo.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div className="photo-actions">
+                              {event?.creator === auth.currentUser?.uid ? (
+                                <div className="photo-action-buttons">
+                                  <button
+                                    className="btn photo-action-button delete-button"
+                                    onClick={() => handleDeletePhoto(photo._id)}
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                    <span>Delete</span>
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  className="btn photo-action-button download-button"
+                                  onClick={() => handleDownload(photo.url, photo._id)}
+                                >
+                                  <i className="bi bi-download"></i>
+                                  <span>Download</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    // Show all photos grouped by folders
+                    <>
+                      {folders.map(folder => (
+                        <div key={folder._id} className="folder-group mb-4">
+                          <h5 className="folder-name mb-3">{folder.name}</h5>
+                          <div className="photo-grid">
+                            {photos
+                              .filter(photo => photo.folder === folder._id)
+                              .map((photo) => (
+                                <div key={photo._id} className="photo-card">
+                                  <div className="photo-image-container">
+                                    <img
+                                      src={photo.url}
+                                      className="photo-image"
+                                      alt={`From ${event.name}`}
+                                      onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                      }}
+                                    />
+                                    <div className="photo-date">
+                                      {new Date(photo.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="photo-actions">
+                                    {event?.creator === auth.currentUser?.uid ? (
+                                      <div className="photo-action-buttons">
+                                        <button
+                                          className="btn photo-action-button delete-button"
+                                          onClick={() => handleDeletePhoto(photo._id)}
+                                        >
+                                          <i className="bi bi-trash"></i>
+                                          <span>Delete</span>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        className="btn photo-action-button download-button"
+                                        onClick={() => handleDownload(photo.url, photo._id)}
+                                      >
+                                        <i className="bi bi-download"></i>
+                                        <span>Download</span>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                           </div>
                         </div>
-                        <div className="photo-actions">
-                          {event?.creator === auth.currentUser?.uid ? (
-                            <div className="photo-action-buttons">
-                              <button
-                                className="btn photo-action-button delete-button"
-                                onClick={() => handleDeletePhoto(photo._id)}
-                              >
-                                <i className="bi bi-trash"></i>
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              className="btn photo-action-button download-button"
-                              onClick={() => handleDownload(photo.url, photo._id)}
-                            >
-                              <i className="bi bi-download"></i>
-                              <span>Download</span>
-                            </button>
-                          )}
+                      ))}
+                      {/* Show photos without folders */}
+                      {photos.filter(photo => !photo.folder).length > 0 && (
+                        <div className="folder-group mb-4">
+                          <h5 className="folder-name mb-3">Unorganized Photos</h5>
+                          <div className="photo-grid">
+                            {photos
+                              .filter(photo => !photo.folder)
+                              .map((photo) => (
+                                <div key={photo._id} className="photo-card">
+                                  <div className="photo-image-container">
+                                    <img
+                                      src={photo.url}
+                                      className="photo-image"
+                                      alt={`From ${event.name}`}
+                                      onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                      }}
+                                    />
+                                    <div className="photo-date">
+                                      {new Date(photo.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="photo-actions">
+                                    {event?.creator === auth.currentUser?.uid ? (
+                                      <div className="photo-action-buttons">
+                                        <button
+                                          className="btn photo-action-button delete-button"
+                                          onClick={() => handleDeletePhoto(photo._id)}
+                                        >
+                                          <i className="bi bi-trash"></i>
+                                          <span>Delete</span>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        className="btn photo-action-button download-button"
+                                        onClick={() => handleDownload(photo.url, photo._id)}
+                                      >
+                                        <i className="bi bi-download"></i>
+                                        <span>Download</span>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="empty-gallery">

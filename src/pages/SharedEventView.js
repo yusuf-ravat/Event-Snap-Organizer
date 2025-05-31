@@ -11,6 +11,8 @@ function SharedEventView() {
   const [error, setError] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showViewer, setShowViewer] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState('');
+  const [folders, setFolders] = useState([]);
 
   useEffect(() => {
     const fetchSharedEvent = async () => {
@@ -18,6 +20,12 @@ function SharedEventView() {
         setLoading(true);
         const response = await axiosInstance.get(`/events/view/${shareCode}`);
         setEvent(response.data.event);
+        
+        // Extract folders from the event response
+        if (response.data.event.folders) {
+          setFolders(response.data.event.folders);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error('Error fetching shared event:', error);
@@ -28,6 +36,10 @@ function SharedEventView() {
 
     fetchSharedEvent();
   }, [shareCode]);
+
+  const handleFolderChange = (e) => {
+    setSelectedFolder(e.target.value);
+  };
 
   const handleDownload = useCallback(async (photoUrl, photoId) => {
     try {
@@ -170,47 +182,153 @@ function SharedEventView() {
             <div className="gallery-card-body">
               <div className="gallery-header">
                 <h4 className="mb-0">Photo Gallery</h4>
-                <span>
-                  {event.photos?.length || 0} Photos
-                </span>
+                <div className="folder-section">
+                  <select 
+                    className="form-select" 
+                    value={selectedFolder} 
+                    onChange={handleFolderChange}
+                  >
+                    <option value="">All Photos</option>
+                    {folders.map(folder => (
+                      <option key={folder._id} value={folder._id}>
+                        {folder.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
               {event.photos && event.photos.length > 0 ? (
                 <div className="gallery-scroll-container">
-                  <div className="photo-grid">
-                    {event.photos.map((photo) => (
-                      <div key={photo._id} className="photo-card">
-                        <div className="photo-image-container">
-                          <img
-                            src={photo.url}
-                            className="photo-image"
-                            alt={`From ${event.name}`}
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
-                            }}
-                          />
-                          <div className="photo-date">
-                            {new Date(photo.createdAt).toLocaleDateString()}
+                  {selectedFolder ? (
+                    // Show photos in selected folder
+                    <div className="photo-grid">
+                      {event.photos
+                        .filter(photo => photo.folder === selectedFolder)
+                        .map((photo) => (
+                          <div key={photo._id} className="photo-card">
+                            <div className="photo-image-container">
+                              <img
+                                src={photo.url}
+                                className="photo-image"
+                                alt={`From ${event.name}`}
+                                onError={(e) => {
+                                  e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                }}
+                              />
+                              <div className="photo-date">
+                                {new Date(photo.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div className="photo-actions">
+                              <button
+                                className="btn photo-action-button view-button"
+                                onClick={() => handleViewPhoto(photo)}
+                              >
+                                <i className="bi bi-eye"></i>
+                                <span>View</span>
+                              </button>
+                              <button
+                                className="btn photo-action-button download-button"
+                                onClick={() => handleDownload(photo.url, photo._id)}
+                              >
+                                <i className="bi bi-download"></i>
+                                <span>Download</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    // Show all photos grouped by folders
+                    <>
+                      {folders.map(folder => (
+                        <div key={folder._id} className="folder-group mb-4">
+                          <h5 className="folder-name mb-3">{folder.name}</h5>
+                          <div className="photo-grid">
+                            {event.photos
+                              .filter(photo => photo.folder === folder._id)
+                              .map((photo) => (
+                                <div key={photo._id} className="photo-card">
+                                  <div className="photo-image-container">
+                                    <img
+                                      src={photo.url}
+                                      className="photo-image"
+                                      alt={`From ${event.name}`}
+                                      onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                      }}
+                                    />
+                                    <div className="photo-date">
+                                      {new Date(photo.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="photo-actions">
+                                    <button
+                                      className="btn photo-action-button view-button"
+                                      onClick={() => handleViewPhoto(photo)}
+                                    >
+                                      <i className="bi bi-eye"></i>
+                                      <span>View</span>
+                                    </button>
+                                    <button
+                                      className="btn photo-action-button download-button"
+                                      onClick={() => handleDownload(photo.url, photo._id)}
+                                    >
+                                      <i className="bi bi-download"></i>
+                                      <span>Download</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
                           </div>
                         </div>
-                        <div className="photo-actions">
-                          <button
-                            className="btn photo-action-button view-button"
-                            onClick={() => handleViewPhoto(photo)}
-                          >
-                            <i className="bi bi-eye"></i>
-                            <span>View</span>
-                          </button>
-                          <button
-                            className="btn photo-action-button download-button"
-                            onClick={() => handleDownload(photo.url, photo._id)}
-                          >
-                            <i className="bi bi-download"></i>
-                            <span>Download</span>
-                          </button>
+                      ))}
+                      {/* Show photos without folders */}
+                      {event.photos.filter(photo => !photo.folder).length > 0 && (
+                        <div className="folder-group mb-4">
+                          <h5 className="folder-name mb-3">Unorganized Photos</h5>
+                          <div className="photo-grid">
+                            {event.photos
+                              .filter(photo => !photo.folder)
+                              .map((photo) => (
+                                <div key={photo._id} className="photo-card">
+                                  <div className="photo-image-container">
+                                    <img
+                                      src={photo.url}
+                                      className="photo-image"
+                                      alt={`From ${event.name}`}
+                                      onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                                      }}
+                                    />
+                                    <div className="photo-date">
+                                      {new Date(photo.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="photo-actions">
+                                    <button
+                                      className="btn photo-action-button view-button"
+                                      onClick={() => handleViewPhoto(photo)}
+                                    >
+                                      <i className="bi bi-eye"></i>
+                                      <span>View</span>
+                                    </button>
+                                    <button
+                                      className="btn photo-action-button download-button"
+                                      onClick={() => handleDownload(photo.url, photo._id)}
+                                    >
+                                      <i className="bi bi-download"></i>
+                                      <span>Download</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="empty-gallery">

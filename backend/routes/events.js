@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
+const Folder = require('../models/Folder');
 const admin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
 const QRCode = require('qrcode');
@@ -164,7 +165,8 @@ router.post('/:id/share', verifyToken, async (req, res) => {
 router.get('/view/:shareCode', async (req, res) => {
   try {
     const event = await Event.findOne({ shareCode: req.params.shareCode })
-      .populate('photos'); // Populate the photos field
+      .populate('photos')
+      .populate('folders'); // Populate the folders field
 
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
@@ -177,6 +179,7 @@ router.get('/view/:shareCode', async (req, res) => {
         name: event.name,
         description: event.description,
         date: event.date,
+        folders: event.folders || [], // Include folders in response
         photos: event.photos.map(photo => {
           // Find download count for this photo
           const photoDownload = event.statistics.photoDownloads.find(
@@ -187,6 +190,7 @@ router.get('/view/:shareCode', async (req, res) => {
             _id: photo._id,
             url: photo.url,
             createdAt: photo.createdAt,
+            folder: photo.folder, // Include folder reference
             downloadCount: photoDownload ? photoDownload.downloadCount : 0
           };
         })
@@ -322,6 +326,89 @@ router.get('/:id/statistics', verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching statistics:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all folders for an event
+router.get('/:id/folders', verifyToken, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Check if user has access
+    if (event.creator !== req.user.uid && !event.sharedUsers.includes(req.user.uid)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const folders = await Folder.find({ event: req.params.id });
+    res.json(folders);
+  } catch (error) {
+    console.error('Error fetching folders:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create a new folder for an event
+router.post('/:id/folders', verifyToken, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Check if user has access
+    if (event.creator !== req.user.uid && !event.sharedUsers.includes(req.user.uid)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const folder = new Folder({
+      name: req.body.name,
+      event: req.params.id
+    });
+
+    const savedFolder = await folder.save();
+    
+    // Add folder to event's folders array
+    event.folders.push(savedFolder._id);
+    await event.save();
+    
+    res.status(201).json(savedFolder);
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete a folder
+router.delete('/:id/folders/:folderId', verifyToken, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Check if user has access
+    if (event.creator !== req.user.uid && !event.sharedUsers.includes(req.user.uid)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const folder = await Folder.findById(req.params.folderId);
+    if (!folder) {
+      return res.status(404).json({ message: 'Folder not found' });
+    }
+
+    // Check if folder belongs to the event
+    if (folder.event.toString() !== req.params.id) {
+      return res.status(403).json({ message: 'Folder does not belong to this event' });
+    }
+
+    await folder.remove();
+    res.json({ message: 'Folder deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting folder:', error);
     res.status(500).json({ message: error.message });
   }
 });

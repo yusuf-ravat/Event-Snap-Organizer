@@ -6,6 +6,10 @@ const photoSchema = new mongoose.Schema({
     ref: 'Event',
     required: true
   },
+  folder: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Folder'
+  },
   cloudinaryId: {
     type: String,
     required: true
